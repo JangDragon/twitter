@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config(); // .env 초기화
 
 function required(key, defaultValue=undefined){
     const value = process.env[key] || defaultValue;
@@ -21,5 +21,12 @@ export const config = {
     },
     host: {
         port: parseInt(required('HOST_PORT', 8080))
+    },
+    db: {
+        host: required('DB_HOST'),
+        user: required('DB_USER'),
+        database: required('DB_DATABASE'),
+        password: required('DB_PASSWORD'),
+        port: required('DB_PORT')
     }
 }

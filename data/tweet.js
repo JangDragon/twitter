@@ -1,62 +1,42 @@
-let tweets = [
-    {
-        id:'1',
-        text:'안녕하세요',
-        createdAt: Date.now().toString(),
-        name: '김사과',
-        username: 'apple',
-        url: 'https://slack-imgs.com/?c=1&o1=ro&url=https%3A%2F%2Fwww.logoyogo.com%2Fweb%2Fwp-content%2Fuploads%2Fedd%2F2021%2F02%2Flogoyogo-1-45.jpg'
-    },
-    {
-        id:'2',
-        text:'반갑습니다',
-        createdAt: Date.now().toString(),
-        name: '반하나',
-        username: 'banana',
-        url: 'https://img.freepik.com/premium-vector/banana-cute-kawaii-style-fruit-character-vector-illustration_787461-1772.jpg'
-    }
-];
-
-
-// 모든 트윗 리턴
+import { db } from '../db/database.js';
+const SELECT_JOIN = 'select tw.id, tw.text, tw.createdAt, tw.userId, us.username, us.name, us.email, us.url from tweets as tw join users as us on tw.userId = us.id';
+const ORDER_DESC = 'order by tw.createdAt desc';
+// 모든 트윗을 리턴
 export async function getAll() {
-    return tweets
+    return db.execute(`${SELECT_JOIN} ${ORDER_DESC}`).then((result) => {
+        console.log(result);
+        return result;
+    });
 }
-
 // 해당 아이디에 대한 트윗을 리턴
 export async function getAllByUsername(username){
-    return tweets.filter((tweet) => tweet.username === username)
+    return db.execute(`${SELECT_JOIN} where username = ? ${ORDER_DESC}`, [username]).then((result) => {
+        console.log(result);
+        return result;
+    });
 }
-
-// 글 번호에 대한 트윗을 리턴
+// 글번호에 대한 트윗을 리턴
 export async function getById(id){
-    return tweets.find((tweet) => tweet.id === id)
+    return db.execute(`${SELECT_JOIN} where tw.id = ? ${ORDER_DESC}`, [id]).then((result) => {
+        console.log(result);
+        return result;
+    });
 }
-
-// 트윗 작성
-export async function create(text, name, username) {
-    const tweet = {
-        id: '10',
-        text: text,
-        createdAt: Date.now().toString(),
-        name,   //name: name
-        username,
-        url: 'https://img.freepik.com/premium-vector/banana-cute-kawaii-style-fruit-character-vector-illustration_787461-1772.jpg'
-    }
-    tweets= [tweet, ...tweets]
-    return tweets;
+// 트윗을 작성
+export async function create(text, userId){
+    return db.execute('insert into tweets (text, userId) values (?, ?)', [text, userId]).then((result) => {
+        console.log(result);
+        return getById(result[0].insertId);
+    });
 }
-
 // 트윗을 변경
-export async function update(id, text) {
-    const tweet = tweets.find((tweet)=> tweet.id === id)
-    if(tweet){
-        tweet.text = text;
-    }
-    return tweet;
+export async function update(id, text){
+    return db.execute('update tweets set text = ? where id = ?', [text, id]).then((result) => {
+        console.log(result);
+        return getById(id);
+    });
 }
-
-// 트윗 삭제
-export async function remove(id) {
-    tweets = tweets.filter((tweet) => tweet.id !== id)
+// 트윗을 삭제
+export async function remove(id){
+    return db.execute('delete from tweets where id = ?', [id]);
 }
