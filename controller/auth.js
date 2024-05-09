@@ -22,13 +22,13 @@ function createJwtToken(id) {
 
 
 export async function signup(req, res, next) {
-    const { username, password, name, email, url } = req.body;
+    let { username, password, name, email, url } = req.body;
     const found = await authRepository.findByUsername(username);
     if (found) {
         return res.status(409).json({ message: `${username}은 이미 존재합니다.` })
     }
-    const hashed = await bcrypt.hash(password, bcryptSaltRounds);
-    const userId = await authRepository.createUser({username, hashed, name, email, url});
+    password = await bcrypt.hash(password, bcryptSaltRounds);
+    const userId = await authRepository.createUser({username, password, name, email, url});
     const token = createJwtToken(userId);
     res.status(201).json({token, username});
 }
