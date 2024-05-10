@@ -19,7 +19,7 @@ app.use((req,res,next) => {
 
 // DB 연결 테스트!
 connectDB().then((db) => {
-    app.listen(config.host.port, ()=>{
-        console.log(`listen http://localhost:${config.host.port}`)
-    })
+    console.log('몽구스 사용하여 몽고디비 접속 성공')
+    app.listen(config.host.port)
 }).catch(console.error);
+
